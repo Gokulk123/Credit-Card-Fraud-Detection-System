@@ -3,6 +3,7 @@ from .models import bank_details
 from .models import customer_details
 from .models import account_details
 from .models import Account_balance
+from .models import transaction_details
 from django.contrib.sessions.models import Session
 import string
 import random
@@ -188,5 +189,63 @@ def view_balance(request):
     return render(request, 'view_balance.html', {'balance': balance,'cusname':cusname})
 
 def make_transaction(request):
+    #cusname = request.session['cusname']
     cusname = request.session['cusname']
-    return render(request, 'make_transaction.html', {'cusname': cusname})
+    details = customer_details.objects.get(username=cusname)
+    c_id = details.id
+    # print(c_id)
+    acct = account_details.objects.get(customer_id=c_id)
+    trans = transaction_details.objects.filter(customer_id=c_id)
+    return render(request, 'make_transaction.html', {'cusname': cusname,'acct': acct,'trans':trans})
+
+def save_transaction(request):
+    import pandas as pd
+    import re
+    import numpy as np
+    from sklearn.tree import DecisionTreeClassifier
+    from sklearn.metrics import confusion_matrix
+    # from sklearn.model_selection import cross_val_score
+    data = pd.read_csv('D:/django/credit_card_fraud/credit_card_fraud_project/credit_card_fraud_project/credit_card_fraud_app/static/newcredit22.csv')
+    print(data)
+    print(data.head())
+    x = data[['transaction']]
+    print(x)
+    y = data[['result']]
+    print(y)
+    tree = DecisionTreeClassifier()
+    tree.fit(x, y)
+    #x1 = float('0'.replace('"', ''))
+    x2 = float(request.POST.get('amount').replace('"', ''))
+
+    y_pred = tree.predict([[x2]])
+    actual_predict = y_pred[0]
+    print(actual_predict)
+    db = transaction_details(amount=request.POST.get('amount'), date=request.POST.get('date'),
+                         acct_num=request.POST.get('accnt'), bank_name=request.POST.get('bank'),
+                         branch=request.POST.get('branch'), cus_name=request.POST.get('cname'),
+                         email=request.POST.get('email'), phone=request.POST.get('phone'),
+                         customer_id=request.POST.get('c_id'),result=actual_predict)
+
+    db.save()
+    cusname = request.session['cusname']
+    details = customer_details.objects.get(username=cusname)
+    c_id = details.id
+    # print(c_id)
+    acct = account_details.objects.get(customer_id=c_id)
+    return render(request, 'make_transaction.html', {'msg': "Successfully Inserted", 'cusname': cusname,'acct': acct})
+
+
+def our_transaction(request):
+    cusname = request.session['cusname']
+    details = customer_details.objects.get(username=cusname)
+    c_id = details.id
+    acct = transaction_details.objects.filter(customer_id=c_id)
+    return render(request, 'our_transaction.html', {'cusname': cusname, 'acct': acct})
+
+def all_transaction(request):
+    acct = transaction_details.objects.all()
+    return render(request, 'all_transaction.html', {'acct': acct})
+
+
+
+

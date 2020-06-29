@@ -43,4 +43,7 @@ urlpatterns = [
     path('save_payment/',views.save_payment),
     path('view_balance/',views.view_balance),
     path('make_transaction/',views.make_transaction),
+    path('save_transaction/',views.save_transaction),
+    path('our_transaction/',views.our_transaction),
+    path('all_transaction/',views.all_transaction),
 ]
