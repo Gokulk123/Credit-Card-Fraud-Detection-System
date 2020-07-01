@@ -220,6 +220,41 @@ def save_transaction(request):
     y_pred = tree.predict([[x2]])
     actual_predict = y_pred[0]
     print(actual_predict)
+    ############################### mail start here #############################
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+    import smtplib
+
+    # create message object instance
+    msg = MIMEMultipart()
+
+
+
+    # setup the parameters of the message
+    password = "9349242488"
+    msg['From'] = "kathu673@gmail.com"
+    msg['To'] = request.POST.get('email')
+    msg['Subject'] = "Transaction Completion"
+    message = "Dear Customer Your Transaction Has Been Completed. Transaction Amount is" + request.POST.get('amount') + ", Please Check and Verify Your Balance."
+    # add in the message body
+    msg.attach(MIMEText(message, 'plain'))
+
+    # create server
+    server = smtplib.SMTP('smtp.gmail.com: 587')
+
+    server.starttls()
+
+    # Login Credentials for sending the mail
+    server.login(msg['From'], password)
+
+    # send the message via the server.
+    server.sendmail(msg['From'], msg['To'], msg.as_string())
+
+    server.quit()
+
+    print("successfully sent email to %s:" % (msg['To']))
+
+    ############################### mail end here ##############################
     db = transaction_details(amount=request.POST.get('amount'), date=request.POST.get('date'),
                          acct_num=request.POST.get('accnt'), bank_name=request.POST.get('bank'),
                          branch=request.POST.get('branch'), cus_name=request.POST.get('cname'),
