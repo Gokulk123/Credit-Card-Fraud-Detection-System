@@ -28,6 +28,9 @@ class account_details(models.Model):
     ifsc = models.CharField(max_length=100,default='SOME STRING')
     card_num = models.CharField(max_length=100,default='SOME STRING')
     customer_id = models.CharField(max_length=100,default='SOME STRING')
+    f_place = models.CharField(max_length=100,default='SOME STRING')
+    f_pet = models.CharField(max_length=100,default='SOME STRING')
+    f_food = models.CharField(max_length=100,default='SOME STRING')
 
 class transaction_details(models.Model):
     cus_name = models.CharField(max_length=100,default='SOME STRING')
@@ -42,23 +45,6 @@ class transaction_details(models.Model):
     result = models.CharField(max_length=100, default='SOME STRING')
 
 
-class security_check(models.Model):
-    userid=models.CharField(max_length=100)
-    secu_ques1=models.CharField(max_length=100)
-    secu_ques2 = models.CharField(max_length=100)
-    secu_ques3 = models.CharField(max_length=100)
-    secu_ques4 = models.CharField(max_length=100)
-
-    answer1 = models.CharField(max_length=100)
-    answer2 = models.CharField(max_length=100)
-    answer3 = models.CharField(max_length=100)
-    answer4 = models.CharField(max_length=100)
-
-class complaints(models.Model):
-    complaint_id=models.CharField(max_length=100)
-    userid = models.CharField(max_length=100)
-    card_no = models.CharField(max_length=100)
-    transaction_id= models.CharField(max_length=100)
 
 
 class bank_details(models.Model):
@@ -66,17 +52,7 @@ class bank_details(models.Model):
     password = models.CharField(max_length=100)
 
 
-class Account_balance(models.Model):
-    user_id = models.CharField(max_length=100)
-    cus_name = models.CharField(max_length=100)
-    email = models.CharField(max_length=100)
-    phone = models.CharField(max_length=100)
-    acct_num = models.CharField(max_length=100)
 
-    bank = models.CharField(max_length=100)
-    branch = models.CharField(max_length=100)
-    date = models.CharField(max_length=100)
-    amount = models.CharField(max_length=100)
 
 
 

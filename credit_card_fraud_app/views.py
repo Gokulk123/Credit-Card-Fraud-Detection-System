@@ -2,7 +2,7 @@ from django.shortcuts import render
 from .models import bank_details
 from .models import customer_details
 from .models import account_details
-from .models import Account_balance
+#from .models import Account_balance
 from .models import transaction_details
 from django.contrib.sessions.models import Session
 import string
@@ -118,7 +118,7 @@ def customer_account(request):
                         ifsc=res, phone=request.POST.get('phone'),
 
 
-                        pin=p1, place=request.POST.get('place'),bank_name=request.POST.get('bankname'))
+                        pin=p1, place=request.POST.get('place'),bank_name=request.POST.get('bankname'),f_food=request.POST.get('food'),f_pet=request.POST.get('pet'),f_place=request.POST.get('f_place'))
 
     db.save()
     return render(request, 'add_account_details.html', {'msg': "Successfully Inserted"})
@@ -199,75 +199,82 @@ def make_transaction(request):
     return render(request, 'make_transaction.html', {'cusname': cusname,'acct': acct,'trans':trans})
 
 def save_transaction(request):
-    import pandas as pd
-    import re
-    import numpy as np
-    from sklearn.tree import DecisionTreeClassifier
-    from sklearn.metrics import confusion_matrix
-    # from sklearn.model_selection import cross_val_score
-    data = pd.read_csv('D:/django/credit_card_fraud/credit_card_fraud_project/credit_card_fraud_project/credit_card_fraud_app/static/newcredit22.csv')
-    print(data)
-    print(data.head())
-    x = data[['transaction']]
-    print(x)
-    y = data[['result']]
-    print(y)
-    tree = DecisionTreeClassifier()
-    tree.fit(x, y)
-    #x1 = float('0'.replace('"', ''))
-    x2 = float(request.POST.get('amount').replace('"', ''))
-
-    y_pred = tree.predict([[x2]])
-    actual_predict = y_pred[0]
-    print(actual_predict)
-    ############################### mail start here #############################
-    from email.mime.multipart import MIMEMultipart
-    from email.mime.text import MIMEText
-    import smtplib
-
-    # create message object instance
-    msg = MIMEMultipart()
-
-
-
-    # setup the parameters of the message
-    password = "9349242488"
-    msg['From'] = "kathu673@gmail.com"
-    msg['To'] = request.POST.get('email')
-    msg['Subject'] = "Transaction Completion"
-    message = "Dear Customer Your Transaction Has Been Completed. Transaction Amount is" + request.POST.get('amount') + ", Please Check and Verify Your Balance."
-    # add in the message body
-    msg.attach(MIMEText(message, 'plain'))
-
-    # create server
-    server = smtplib.SMTP('smtp.gmail.com: 587')
-
-    server.starttls()
-
-    # Login Credentials for sending the mail
-    server.login(msg['From'], password)
-
-    # send the message via the server.
-    server.sendmail(msg['From'], msg['To'], msg.as_string())
-
-    server.quit()
-
-    print("successfully sent email to %s:" % (msg['To']))
-
-    ############################### mail end here ##############################
-    db = transaction_details(amount=request.POST.get('amount'), date=request.POST.get('date'),
-                         acct_num=request.POST.get('accnt'), bank_name=request.POST.get('bank'),
-                         branch=request.POST.get('branch'), cus_name=request.POST.get('cname'),
-                         email=request.POST.get('email'), phone=request.POST.get('phone'),
-                         customer_id=request.POST.get('c_id'),result=actual_predict)
-
-    db.save()
     cusname = request.session['cusname']
     details = customer_details.objects.get(username=cusname)
     c_id = details.id
     # print(c_id)
     acct = account_details.objects.get(customer_id=c_id)
-    return render(request, 'make_transaction.html', {'msg': "Successfully Inserted", 'cusname': cusname,'acct': acct})
+    if acct.f_food == request.POST.get('f_food') and acct.f_pet == request.POST.get('f_pet') and acct.f_place == request.POST.get('f_place'):
+        import pandas as pd
+        import re
+        import numpy as np
+        from sklearn.tree import DecisionTreeClassifier
+        from sklearn.metrics import confusion_matrix
+        # from sklearn.model_selection import cross_val_score
+        data = pd.read_csv('D:/django/credit_card_fraud/credit_card_fraud_project/credit_card_fraud_project/credit_card_fraud_app/static/newcredit22.csv')
+        print(data)
+        print(data.head())
+        x = data[['transaction']]
+        print(x)
+        y = data[['result']]
+        print(y)
+        tree = DecisionTreeClassifier()
+        tree.fit(x, y)
+        #x1 = float('0'.replace('"', ''))
+        x2 = float(request.POST.get('amount').replace('"', ''))
+
+        y_pred = tree.predict([[x2]])
+        actual_predict = y_pred[0]
+        print(actual_predict)
+        ############################### mail start here #############################
+        from email.mime.multipart import MIMEMultipart
+        from email.mime.text import MIMEText
+        import smtplib
+
+        # create message object instance
+        msg = MIMEMultipart()
+
+
+
+        # setup the parameters of the message
+        password = "9349242488"
+        msg['From'] = "kathu673@gmail.com"
+        msg['To'] = request.POST.get('email')
+        msg['Subject'] = "Transaction Completion"
+        message = "Dear Customer Your Transaction Has Been Completed. Transaction Amount is" + request.POST.get('amount') + ", Please Check and Verify Your Balance."
+        # add in the message body
+        msg.attach(MIMEText(message, 'plain'))
+
+        # create server
+        server = smtplib.SMTP('smtp.gmail.com: 587')
+
+        server.starttls()
+
+        # Login Credentials for sending the mail
+        server.login(msg['From'], password)
+
+        # send the message via the server.
+        server.sendmail(msg['From'], msg['To'], msg.as_string())
+
+        server.quit()
+
+        print("successfully sent email to %s:" % (msg['To']))
+
+        ############################### mail end here ##############################
+        db = transaction_details(amount=request.POST.get('amount'), date=request.POST.get('date'),
+                         acct_num=request.POST.get('accnt'), bank_name=request.POST.get('bank'),
+                         branch=request.POST.get('branch'), cus_name=request.POST.get('cname'),
+                         email=request.POST.get('email'), phone=request.POST.get('phone'),
+                         customer_id=request.POST.get('c_id'),result=actual_predict)
+
+        db.save()
+        cusname = request.session['cusname']
+        details = customer_details.objects.get(username=cusname)
+        c_id = details.id
+        # print(c_id)
+        acct = account_details.objects.get(customer_id=c_id)
+        return render(request, 'make_transaction.html', {'msg': "Successfully Inserted", 'cusname': cusname,'acct': acct})
+    return render(request, 'make_transaction.html', {'msg': "Some Errors,please enter valid credentials", 'cusname': cusname, 'acct': acct})
 
 
 def our_transaction(request):
